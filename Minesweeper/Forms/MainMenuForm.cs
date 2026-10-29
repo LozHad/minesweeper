@@ -41,24 +41,25 @@ public partial class MainMenuForm : Form
 
         newGameButton.Click += (sender, e) =>
         {
-            using var form = new DifficultyForm();
-            if (form.ShowDialog(this) == DialogResult.OK)
-            {
-                // Игровое окно добавим на следующем этапе.
-                MessageBox.Show(
-                    $"Выбрана сложность: {form.SelectedDifficulty}\n" +
-                    $"Размер поля: {form.SelectedWidth} x {form.SelectedHeight}\n" +
-                    $"Количество мин: {form.SelectedMines}",
-                    "Настройки новой игры");
-            }
+            using var difficultyForm = new DifficultyForm();
+
+            if (difficultyForm.ShowDialog(this) != DialogResult.OK)
+                return;
+
+            using var gameForm = new GameForm(
+                userId,
+                difficultyForm.SelectedDifficulty,
+                difficultyForm.SelectedWidth,
+                difficultyForm.SelectedHeight,
+                difficultyForm.SelectedMines);
+
+            gameForm.ShowDialog(this);
         };
 
         statisticsButton.Click += (sender, e) =>
         {
-            MessageBox.Show(
-                $"ID текущего пользователя: {userId}\n" +
-                "Окно статистики добавим на следующем этапе.",
-                "Моя статистика");
+            using var statiscticsForm = new StatisticsForm(userId);
+            statiscticsForm.ShowDialog(this);
         };
 
         settingsButton.Click += (sender, e) =>
