@@ -1,4 +1,4 @@
-﻿using Npgsql;
+﻿using Microsoft.Data.Sqlite;
 
 namespace Minesweeper.Data;
 
@@ -20,7 +20,7 @@ public static class AuthService
 
         string passwordHash = PasswordHasher.HashPassword(password);
 
-        await using var connection = Database.CreateConnection();
+        await using var connection = SqliteDatabase.CreateConnection();
         await connection.OpenAsync();
 
         const string sql = """
@@ -30,13 +30,13 @@ public static class AuthService
             RETURNING id;
             """;
 
-        await using var command = new NpgsqlCommand(sql, connection);
-        command.Parameters.AddWithValue("username", username);
-        command.Parameters.AddWithValue("password", passwordHash);
+        await using var command = new SqliteCommand(sql, connection);
+
+        command.Parameters.AddWithValue("@username", username);
+        command.Parameters.AddWithValue("@password", passwordHash);
 
         object? result = await command.ExecuteScalarAsync();
 
-        // null означает, что имя уже занято.
         return result != null;
     }
 
@@ -46,7 +46,7 @@ public static class AuthService
     {
         username = username.Trim();
 
-        await using var connection = Database.CreateConnection();
+        await using var connection = SqliteDatabase.CreateConnection();
         await connection.OpenAsync();
 
         const string sql = """
@@ -55,8 +55,9 @@ public static class AuthService
             WHERE username = @username;
             """;
 
-        await using var command = new NpgsqlCommand(sql, connection);
-        command.Parameters.AddWithValue("username", username);
+        await using var command = new SqliteCommand(sql, connection);
+
+        command.Parameters.AddWithValue("@username", username);
 
         await using var reader = await command.ExecuteReaderAsync();
 

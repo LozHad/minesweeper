@@ -1,4 +1,4 @@
-﻿using Npgsql;
+﻿using Microsoft.Data.Sqlite;
 
 namespace Minesweeper.Data;
 
@@ -15,7 +15,7 @@ public static class StatisticsService
     {
         var records = new List<PlayerRecord>();
 
-        await using var connection = Database.CreateConnection();
+        await using var connection = SqliteDatabase.CreateConnection();
         await connection.OpenAsync();
 
         const string sql = """
@@ -26,8 +26,8 @@ public static class StatisticsService
             ORDER BY r.achieved_at DESC, r.time_seconds ASC;
             """;
 
-        await using var command = new NpgsqlCommand(sql, connection);
-        command.Parameters.AddWithValue("userId", userId);
+        await using var command = new SqliteCommand(sql, connection);
+        command.Parameters.AddWithValue("@userId", userId);
 
         await using var reader = await command.ExecuteReaderAsync();
 
@@ -37,7 +37,7 @@ public static class StatisticsService
             {
                 Difficulty = reader.GetString(0),
                 TimeSeconds = reader.GetInt32(1),
-                AchievedAt = reader.GetDateTime(2)
+                AchievedAt = DateTime.Parse(reader.GetString(2))
             });
         }
 

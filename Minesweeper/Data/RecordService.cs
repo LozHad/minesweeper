@@ -1,4 +1,4 @@
-﻿using Npgsql;
+﻿using Microsoft.Data.Sqlite;
 
 namespace Minesweeper.Data;
 
@@ -12,7 +12,7 @@ public static class RecordService
         if (timeSeconds < 1)
             timeSeconds = 1;
 
-        await using var connection = Database.CreateConnection();
+        await using var connection = SqliteDatabase.CreateConnection();
         await connection.OpenAsync();
 
         const string sql = """
@@ -22,11 +22,11 @@ public static class RecordService
             WHERE level_name = @difficulty;
             """;
 
-        await using var command = new NpgsqlCommand(sql, connection);
+        await using var command = new SqliteCommand(sql, connection);
 
-        command.Parameters.AddWithValue("userId", userId);
-        command.Parameters.AddWithValue("difficulty", difficulty);
-        command.Parameters.AddWithValue("timeSeconds", timeSeconds);
+        command.Parameters.AddWithValue("@userId", userId);
+        command.Parameters.AddWithValue("@difficulty", difficulty);
+        command.Parameters.AddWithValue("@timeSeconds", timeSeconds);
 
         int rowsAffected = await command.ExecuteNonQueryAsync();
 
