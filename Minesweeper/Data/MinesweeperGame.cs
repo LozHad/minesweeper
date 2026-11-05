@@ -89,7 +89,6 @@ public class MinesweeperGame
         if (IsGameOver || opened[x, y] || flagged[x, y])
             return;
 
-        // Первый клик всегда безопасен.
         if (!MinesPlaced)
         {
             PlaceMines(x, y);
@@ -104,6 +103,62 @@ public class MinesweeperGame
         }
 
         OpenEmptyArea(x, y);
+        CheckWin();
+    }
+
+    public void OpenAdjacentCells(int x, int y)
+    {
+        if (IsGameOver || !opened[x, y])
+            return;
+
+        int number = CountAdjacentMines(x, y);
+
+        if (number == 0)
+            return;
+
+        int flags = 0;
+
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                if (dx == 0 && dy == 0)
+                    continue;
+
+                int nx = x + dx;
+                int ny = y + dy;
+
+                if (IsInside(nx, ny) && flagged[nx, ny])
+                    flags++;
+            }
+        }
+
+        if (flags != number)
+            return;
+
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                if (dx == 0 && dy == 0)
+                    continue;
+
+                int nx = x + dx;
+                int ny = y + dy;
+
+                if (!IsInside(nx, ny))
+                    continue;
+
+                if (!opened[nx, ny] && !flagged[nx, ny])
+                {
+                    OpenCell(nx, ny);
+
+                    if (IsGameOver)
+                        return;
+                }
+            }
+        }
+
         CheckWin();
     }
 
@@ -122,7 +177,6 @@ public class MinesweeperGame
             }
         }
 
-        // Перемешиваем список, чтобы случайно выбрать клетки для мин.
         for (int i = positions.Count - 1; i > 0; i--)
         {
             int j = random.Next(i + 1);

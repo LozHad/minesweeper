@@ -106,7 +106,15 @@ public partial class GameForm : Form
                     }
                     else if (e.Button == MouseButtons.Left)
                     {
-                        game.OpenCell(cellX, cellY);
+                        if (game.IsOpened(cellX, cellY))
+                        {
+                            game.OpenAdjacentCells(cellX, cellY);
+                        }
+                        else
+                        {
+                            game.OpenCell(cellX, cellY);
+                        }
+
                         RefreshBoard();
                         CheckGameResult();
                     }
@@ -155,7 +163,6 @@ public partial class GameForm : Form
                 }
                 else if (game.IsOpened(x, y))
                 {
-                    button.Enabled = false;
                     button.BackColor = Color.LightGray;
 
                     if (game.HasMine(x, y))
