@@ -144,6 +144,7 @@ public partial class DifficultyForm : Form
             case "Лёгкий":
                 SetValues(9, 9, 10);
                 break;
+
             case "Средний":
                 SetValues(16, 16, 40);
                 break;
@@ -153,16 +154,23 @@ public partial class DifficultyForm : Form
                 break;
 
             case "Кастомный":
-                // Пользователь задаёт размеры и количество мин.
                 break;
         }
+
+        bool isCustom = SelectedDifficulty == "Кастомный";
+
+        widthBox.Enabled = isCustom;
+        heightBox.Enabled = isCustom;
+        minesBox.Enabled = isCustom;
     }
 
     private void SetValues(int width, int height, int mines)
     {
         widthBox.Value = width;
         heightBox.Value = height;
+
         UpdateMineLimit();
+
         minesBox.Value = mines;
     }
 
